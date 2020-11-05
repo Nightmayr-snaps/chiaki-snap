@@ -134,6 +134,10 @@ parts:
       - libxdmcp6
       - libxext6
       - libxfixes3
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
     after: [ffnvcodec]
   # ffmpeg:
   #   plugin: nil
@@ -226,7 +230,7 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes
-    
+
 apps:
   chiaki:
     command: usr/local/bin/chiaki
