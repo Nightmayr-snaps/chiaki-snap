@@ -1,0 +1,260 @@
+name: chiaki
+base: core20
+adopt-info: chiaki
+summary: Free and Open Source PS4 Remote Play Client
+description: |
+  Chiaki is a Free and Open Source Software Client for PlayStation 4 Remote Play.
+  
+  Everything necessary for a full streaming session, including the initial registration and wakeup of the console, is supported. The following features however are yet to be implemented:
+  
+  * Congestion Control
+  * H264 Error Concealment (FEC and active error recovery however are implemented)
+  * Touchpad support (Triggering the Touchpad Button is currently possible by pressing T on the keyboard)
+  * Rumble
+  * Configurable Keybindings
+
+  **Usage**: 
+  If your PS4 is on your local network, is turned on or in standby mode and does not have Discovery explicitly disabled, Chiaki should find it. 
+  Otherwise, you can add it manually. To do so, click the "+" icon in the top right, and enter your PS4's IP address.
+
+  You will then need to register your PS4 with Chiaki. You will need two more pieces of information to do this.
+
+  **Obtaining your PSN AccountID**: 
+  Starting with PS4 7.0, it is necessary to use a so-called "AccountID" as opposed to the "Online-ID" for registration (streaming itself did not change). 
+  This ID seems to be a unique identifier for a PSN Account and it can be obtained from the PSN after logging in using OAuth. 
+  A Python 3 script which does this is provided as part of this snap. Simply run it in a terminal with *`chiaki.psn-account-id`* and follow the instructions. 
+  Once you know your ID, write it down. You will likely never have to do this process again.
+
+  **Obtaining a Registration PIN**: 
+  To register a PS4 with a PIN, it must be put into registration mode. 
+  To do this, on your PS4, simply go to: Settings -> Remote Play (ensure this is ticked) -> Add Device
+
+  You can now double-click your PS4 in Chiaki's main window to start Remote Play.
+license: GPL-3.0
+icon: snap/gui/chiaki.png
+grade: stable
+confinement: strict
+architectures:
+- build-on: amd64
+parts:
+  chiaki:
+    source: https://github.com/thestr4ng3r/chiaki.git
+    source-tag: 'v1.3.0'
+    plugin: cmake
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version $(git describe --tag | sed 's/^v//')
+    override-build: |
+      install -D -m755 $SNAPCRAFT_PART_SRC/scripts/psn-account-id.py $SNAPCRAFT_PART_INSTALL/bin/psn-account-id.py
+      which cmake
+      pip3 install protobuf
+      snapcraftctl build
+      sed -i 's|Icon=chiaki|Icon=/usr/local/share/icons/hicolor/512x512/apps/chiaki.png|' $SNAPCRAFT_PART_INSTALL/usr/local/share/applications/chiaki.desktop
+    build-packages:
+      - build-essential
+      - libavutil-dev
+      - libswresample-dev
+      - libswscale-dev
+      - python3 
+      - python3-pip 
+      - libssl-dev 
+      - nanopb 
+      - libavcodec-dev 
+      - ffmpeg 
+      - protobuf-compiler
+      - libopengl-dev 
+      - h264enc
+      - libsdl2-dev 
+      - qt5-default
+      - qttools5-dev-tools
+      - libqt5svg5-dev
+      - qtmultimedia5-dev 
+      - libopus-dev 
+      - libprotobuf-dev
+      - libqt5opengl5-dev
+    build-snaps:
+      - cmake
+    stage-packages:
+      - libqt5multimedia5
+      - libopus0
+      - libpulse0
+      - libsndio7.0
+      - libasound2
+      - libqt5multimedia5-plugins
+      - libva2
+      - libva-drm2
+      - libva-x11-2
+      - libva-wayland2
+      - libvdpau1
+      - mesa-vdpau-drivers
+      - mesa-va-drivers
+      - libvdpau-va-gl1
+      - i965-va-driver
+      - mesa-utils
+      - libsdl2-2.0-0
+      - libxss1
+      - qt5-gtk-platformtheme
+    after:
+      - ffmpeg
+      - desktop-qt5
+  ffnvcodec:
+    plugin: make
+    source: https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
+    source-branch: sdk/8.1
+  ffmpeg:
+    plugin: autotools
+    source: https://git.ffmpeg.org/ffmpeg.git
+    source-branch: master
+    autotools-configure-parameters:
+      - --prefix=/usr
+      - --enable-pic
+      - --enable-shared
+      - --disable-static
+      - --disable-all
+      - --enable-avcodec
+      - --enable-nvdec
+      - --enable-decoder=h264
+      - --enable-decoder=hevc
+      - --enable-hwaccel=h264_vaapi
+      - --enable-hwaccel=hevc_vaapi
+      - --enable-hwaccel=h264_vdpau
+      - --enable-hwaccel=hevc_vdpau
+      - --enable-hwaccel=h264_nvdec
+      - --enable-hwaccel=hevc_nvdec
+    build-packages:
+      - libva-dev
+      - libvdpau-dev
+      - libx265-dev
+      - nasm
+    stage-packages:
+      - libdrm2
+      - libx11-6
+      - libxau6
+      - libxcb1
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+    after: [ffnvcodec]
+  # ffmpeg:
+  #   plugin: nil
+  #   stage-packages:
+  #     - libfdk-aac1
+  #     - ffmpeg
+  #     - libswscale5
+  #     - libavformat58
+  #     - libavcodec58
+  #     - libavdevice58
+  #     - libavutil56
+  #     - libavcodec-extra
+  #     - freeglut3
+  #     - libglu1
+  #   stage:
+  #     - -usr/share/doc
+  desktop-qt5:
+    build-packages:
+    - build-essential
+    - qtbase5-dev
+    - dpkg-dev
+    make-parameters:
+    - FLAVOR=qt5
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    stage-packages:
+    - libxkbcommon0
+    - ttf-ubuntu-font-family
+    - dmz-cursor-theme
+    - light-themes
+    - adwaita-icon-theme
+    - gnome-themes-standard
+    - shared-mime-info
+    - libqt5gui5
+    - libgtk2.0-0
+    - libgdk-pixbuf2.0-0
+    - libqt5svg5
+    - libgpm2
+    - freeglut3
+    - libslang2
+    - try:
+      - appmenu-qt5
+    - locales-all
+    - qtwayland5
+    - xdg-user-dirs
+    override-prime: |
+      snapcraftctl prime
+      sed -i 's|XDG_DATA_HOME=$SNAP_USER_DATA|XDG_DATA_HOME=$SNAP_USER_COMMON|' $SNAPCRAFT_PRIME/bin/desktop-launch
+      sed -i 's|XDG_CONFIG_HOME=$SNAP_USER_DATA|XDG_CONFIG_HOME=$SNAP_USER_COMMON|' $SNAPCRAFT_PRIME/bin/desktop-launch
+    stage:
+      - -usr/share/doc
+  plasma-integration:
+    plugin: nil
+    stage-packages:
+    - breeze-icon-theme
+    - kde-style-breeze
+    - plasma-integration
+    stage:
+    - -usr/share/doc
+  launchers:
+    plugin: dump
+    source: snap/local/launchers
+    source-type: local
+    organize:
+      '*': bin/
+  # cleanup:
+  #   after:
+  #   - chiaki
+  #   - ffmpeg
+  #   plugin: nil
+  #   build-snaps:
+  #   - core20
+  #   override-prime: |
+  #     set -eux
+  #     for snap in "core20"; do  # List all content-snaps and base snaps you're using here
+  #       cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+  #     done
+
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
+    
+apps:
+  chiaki:
+    command: usr/local/bin/chiaki
+    command-chain:
+      - "bin/desktop-launch"
+      - "bin/chiaki-launch"
+    desktop: usr/local/share/applications/chiaki.desktop
+    environment:
+      HOME: "$SNAP_USER_COMMON"
+      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
+      KDE_FORK_SLAVES: 1
+      DISABLE_WAYLAND: 1
+    plugs:
+    - desktop
+    - desktop-legacy
+    - x11
+    - wayland
+    - audio-playback
+    - opengl
+    - joystick
+    - unity7
+    - network
+    - network-bind
+    - home
+    - bluez
+    - hardware-observe
+  psn-account-id:
+    command: bin/psn-account-id.py
+    plugs:
+    - network
+    - network-bind
