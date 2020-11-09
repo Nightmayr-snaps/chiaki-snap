@@ -9,13 +9,10 @@ LATEST_VERSION=${LATEST_VERSION_TAG#v}
 # compare versions
 if [ $CURRENT_VERSION_SNAP != $LATEST_VERSION ]; then
     echo "versions don't match, github: $LATEST_VERSION snap: $CURRENT_VERSION_SNAP"
-    echo "updating rpcs3 source commit"
-    yq w -i snap/snapcraft.yaml parts.rpcs3.source-commit $LATEST_VERSION_COMMIT
-    export BUILD="true"
-    export LATEST_VERSION
-    export LATEST_VERSION_COMMIT
-    export CURRENT_VERSION_SNAP
+    echo "BUILD=\"true\"" >> $GITHUB_ENV
+    echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+    echo "CURRENT_VERSION_SNAP=$CURRENT_VERSION_SNAP" >> $GITHUB_ENV
 else
     echo "versions match, github: $LATEST_VERSION snap: $CURRENT_VERSION_SNAP"
-    export BUILD="false"
+    echo "BUILD=\"false\"" >> $GITHUB_ENV
 fi
