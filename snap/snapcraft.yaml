@@ -39,11 +39,11 @@ architectures:
 parts:
   chiaki:
     source: https://github.com/thestr4ng3r/chiaki.git
-    source-tag: 'v1.3.0'
     plugin: cmake
     override-pull: |
       snapcraftctl pull
       snapcraftctl set-version $(git describe --tag | sed 's/^v//')
+      git checkout $(git describe --tag)
     override-build: |
       install -D -m755 $SNAPCRAFT_PART_SRC/scripts/psn-account-id.py $SNAPCRAFT_PART_INSTALL/bin/psn-account-id.py
       which cmake
