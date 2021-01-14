@@ -54,6 +54,7 @@ jobs:
       run: |
         sudo apt install -y xorg openbox libxcb-xinerama0 xvfb
         export DISPLAY=:99.0
+        xhost +
     - name: Testing snap
       run: |
         sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}

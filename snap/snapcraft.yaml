@@ -232,7 +232,7 @@ apps:
     desktop: usr/local/share/applications/chiaki.desktop
     environment:
       HOME: "$SNAP_USER_COMMON"
-      LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
+      LD_LIBRARY_PATH: "$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio"
       KDE_FORK_SLAVES: 1
       DISABLE_WAYLAND: 1
     plugs:
