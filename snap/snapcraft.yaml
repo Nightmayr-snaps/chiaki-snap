@@ -1,23 +1,14 @@
 name: chiaki
 base: core20
 adopt-info: chiaki
-summary: Free and Open Source PS4 Remote Play Client
+summary: Free and Open Source Client for PlayStation Remote Play
 description: |
-  Chiaki is a Free and Open Source Software Client for PlayStation 4 Remote Play.
-  
-  Everything necessary for a full streaming session, including the initial registration and wakeup of the console, is supported. The following features however are yet to be implemented:
-  
-  * Congestion Control
-  * H264 Error Concealment (FEC and active error recovery however are implemented)
-  * Touchpad support (Triggering the Touchpad Button is currently possible by pressing T on the keyboard)
-  * Rumble
-  * Configurable Keybindings
+  Chiaki is a Free and Open Source Client for PlayStation 4 and PlayStation 5 Remote Play. It can be used to play in real time on a PlayStation as long as there is a network connection.
 
   **Usage**: 
-  If your PS4 is on your local network, is turned on or in standby mode and does not have Discovery explicitly disabled, Chiaki should find it. 
-  Otherwise, you can add it manually. To do so, click the "+" icon in the top right, and enter your PS4's IP address.
+  If your Console is on your local network, is turned on or in standby mode and does not have Discovery explicitly disabled, Chiaki should find it. Otherwise, you can add it manually. To do so, click the "+" icon in the top right, and enter your Console's IP address.
 
-  You will then need to register your PS4 with Chiaki. You will need two more pieces of information to do this.
+  You will then need to register your Console with Chiaki. You will need two more pieces of information to do this.
 
   **Obtaining your PSN AccountID**: 
   Starting with PS4 7.0, it is necessary to use a so-called "AccountID" as opposed to the "Online-ID" for registration (streaming itself did not change). 
@@ -26,24 +17,24 @@ description: |
   Once you know your ID, write it down. You will likely never have to do this process again.
 
   **Obtaining a Registration PIN**: 
-  To register a PS4 with a PIN, it must be put into registration mode. 
-  To do this, on your PS4, simply go to: Settings -> Remote Play (ensure this is ticked) -> Add Device
+  To register a Console with a PIN, it must be put into registration mode. To do this on a PS4, simply go to: Settings -> Remote Play -> Add Device, or on a PS5: Settings -> System -> Remote Play -> Link Device.
 
-  You can now double-click your PS4 in Chiaki's main window to start Remote Play.
+  You can now double-click your Console in Chiaki's main window to start Remote Play.
 license: GPL-3.0
 icon: snap/gui/chiaki.png
 grade: stable
 confinement: strict
 architectures:
 - build-on: amd64
+compression: lzo
 parts:
   chiaki:
-    source: https://github.com/thestr4ng3r/chiaki.git
+    source: https://git.sr.ht/~thestr4ng3r/chiaki
     plugin: cmake
     override-pull: |
       snapcraftctl pull
-      snapcraftctl set-version $(git describe --tag | sed 's/^v//')
-      git checkout $(git describe --tag)
+      snapcraftctl set-version $(git tag | tail -n1 | sed 's/^v//')
+      git checkout $(git tag | tail -n1)
     override-build: |
       install -D -m755 $SNAPCRAFT_PART_SRC/scripts/psn-account-id.py $SNAPCRAFT_PART_INSTALL/bin/psn-account-id.py
       which cmake
