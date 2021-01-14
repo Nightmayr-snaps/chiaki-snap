@@ -30,6 +30,7 @@ compression: lzo
 parts:
   chiaki:
     source: https://git.sr.ht/~thestr4ng3r/chiaki
+    source-type: git
     plugin: cmake
     override-pull: |
       snapcraftctl pull
