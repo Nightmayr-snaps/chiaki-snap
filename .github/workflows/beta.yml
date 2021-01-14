@@ -5,7 +5,7 @@ on:
     - cron: '0 */5 * * *'
     - cron: '15 13 * * *'
   push:
-    branches: [ edge ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,24 @@ jobs:
         sudo apt install moreutils -y
     - name: Check latest version
       run: |
-        ./.github/scripts/version.sh
+        #!/bin/bash
+
+        git clone https://git.sr.ht/~thestr4ng3r/chiaki
+
+        # check latest released tagged version
+        LATEST_VERSION="$(cd chiaki && git tag | tail -n1 | sed 's/^v//')"
+        CURRENT_VERSION_SNAP="$(snap info chiaki | grep beta | head -n 2 | tail -n 1 | awk -F ' ' '{print $2}')"
+
+        # compare versions
+        if [ $CURRENT_VERSION_SNAP != $LATEST_VERSION ]; then
+            echo "versions don't match, github: $LATEST_VERSION snap: $CURRENT_VERSION_SNAP"
+            echo "BUILD=true" >> $GITHUB_ENV
+            echo "LATEST_VERSION=$LATEST_VERSION" >> $GITHUB_ENV
+            echo "CURRENT_VERSION_SNAP=$CURRENT_VERSION_SNAP" >> $GITHUB_ENV
+        else
+            echo "versions match, github: $LATEST_VERSION snap: $CURRENT_VERSION_SNAP"
+            echo "BUILD=false" >> $GITHUB_ENV
+        fi
       id: version-check
     - name: Already latest version - cancelling
       if: env.BUILD == 'false'
@@ -37,10 +54,10 @@ jobs:
       with:
         store_login: ${{ secrets.STORE_LOGIN }}
         snap: ${{ steps.snapcraft.outputs.snap }}
-        release: edge
+        release: beta
     - name: updating versions.json
       run: |
-        cat versions.json | jq '.edge = "${{ env.LATEST_VERSION }}"' | sponge versions.json
+        cat versions.json | jq '.beta = "${{ env.LATEST_VERSION }}"' | sponge versions.json
     - name: Committing updated versions.json
       run: |
         git config --global user.name 'Nightmayr'
