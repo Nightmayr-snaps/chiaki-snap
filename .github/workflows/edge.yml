@@ -29,6 +29,10 @@ jobs:
       uses: andymckay/cancel-action@0.2
     - uses: snapcore/action-build@v1
       id: snapcraft
+    - uses: actions/upload-artifact@v2
+      with:
+        name: snap
+        path: ${{ steps.snapcraft.outputs.snap }}
     - name: Testing snap
       run: |
         sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}
@@ -45,5 +49,5 @@ jobs:
       run: |
         git config --global user.name 'Nightmayr'
         git config --global user.email 'umayr23@gmail.com'
-        git commit -am "Updating version [ci-skip]"
+        git commit versions.json -m "Updating version [ci-skip]"
         git push origin master
