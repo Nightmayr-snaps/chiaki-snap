@@ -33,8 +33,7 @@ parts:
     plugin: cmake
     override-pull: |
       snapcraftctl pull
-      snapcraftctl set-version $(git tag | tail -n1 | sed 's/^v//')
-      git checkout $(git tag | tail -n1)
+      snapcraftctl set-version $(git describe --tags | sed 's/^v//')
     override-build: |
       install -D -m755 $SNAPCRAFT_PART_SRC/scripts/psn-account-id.py $SNAPCRAFT_PART_INSTALL/bin/psn-account-id.py
       which cmake
