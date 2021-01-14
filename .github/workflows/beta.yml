@@ -53,10 +53,11 @@ jobs:
     - name: Install snap test dependencies
       run: |
         sudo apt install -y xorg openbox libxcb-xinerama0
+        export DISPLAY=:99.0
     - name: Testing snap
       run: |
         sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}
-        snap run chiaki --help
+        xvfb-run snap run chiaki --help
     - uses: snapcore/action-publish@v1
       with:
         store_login: ${{ secrets.STORE_LOGIN }}
