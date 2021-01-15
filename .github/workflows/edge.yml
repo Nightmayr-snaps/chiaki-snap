@@ -26,7 +26,6 @@ jobs:
         git fetch
         git checkout -m origin/master versions.json
         git add versions.json
-        git commit
         cat versions.json
     - name: Set up environment
       run: |
