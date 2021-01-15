@@ -52,7 +52,7 @@ jobs:
         path: ${{ steps.snapcraft.outputs.snap }}
     - name: Install snap test dependencies
       run: |
-        sudo apt install -y xorg openbox libxcb-xinerama0 xvfb
+        sudo apt install -y xorg openbox libxcb-xinerama0 xvfb xauth
         export DISPLAY=:99.0
         xhost +
     - name: Testing snap
