@@ -17,6 +17,10 @@ jobs:
       with:
         ref: edge
         token: ${{ secrets.PAT }}
+    - name: Configure Git
+      run: |
+        git config --global user.name 'Nightmayr'
+        git config --global user.email 'umayr23@gmail.com'
     - name: Checkout versions.json (master)
       run: |
         git fetch
@@ -55,7 +59,5 @@ jobs:
         cat versions.json | jq '.edge = "${{ env.LATEST_VERSION }}"' | sponge versions.json
     - name: Committing updated versions.json
       run: |
-        git config --global user.name 'Nightmayr'
-        git config --global user.email 'umayr23@gmail.com'
         git commit versions.json -m "Updating version [ci-skip]"
         git push origin master
