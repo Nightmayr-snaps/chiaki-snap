@@ -17,6 +17,13 @@ jobs:
       with:
         ref: edge
         token: ${{ secrets.PAT }}
+    - name: Checkout versions.json (master)
+      run: |
+        git fetch
+        git checkout -m origin/master versions.json
+        git add versions.json
+        git commit
+        cat versions.json
     - name: Set up environment
       run: |
         sudo apt install jq -y
