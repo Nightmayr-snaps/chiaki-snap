@@ -5,6 +5,7 @@ git clone https://git.sr.ht/~thestr4ng3r/chiaki
 # check latest released tagged version
 LATEST_VERSION="$(cd chiaki && git describe --tags | sed 's/^v//')"
 CURRENT_VERSION_SNAP="$(snap info chiaki | grep edge | head -n 2 | tail -n 1 | awk -F ' ' '{print $2}')"
+rm -rf chiaki
 
 # compare versions
 if [ $CURRENT_VERSION_SNAP != $LATEST_VERSION ]; then
