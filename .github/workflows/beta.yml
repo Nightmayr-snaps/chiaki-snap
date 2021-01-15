@@ -29,6 +29,7 @@ jobs:
         # check latest released tagged version
         LATEST_VERSION="$(cd chiaki && git tag | tail -n1 | sed 's/^v//')"
         CURRENT_VERSION_SNAP="$(snap info chiaki | grep beta | head -n 2 | tail -n 1 | awk -F ' ' '{print $2}')"
+        rm -rf chiaki
 
         # compare versions
         if [ $CURRENT_VERSION_SNAP != $LATEST_VERSION ]; then
